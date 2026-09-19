@@ -13,7 +13,7 @@ public/
   js/app.js           carta y envío
   js/resultados.js    tabla, conteos, CSV/JSON
   img/                fotos (créditos en img/CREDITS.md)
-src/worker.js         Cloudflare Worker: API + archivos estáticos
+src/worker.js         Cloudflare Worker: API + archivos estáticos + Durable Object `Guests`
 wrangler.toml
 dev-server.py         servidor local de pruebas (misma API, guarda choices.json)
 ```
@@ -57,7 +57,8 @@ Con Wrangler: copia `.dev.vars.example` a `.dev.vars` y ejecuta `npx wrangler de
 | `GET` | `/api/choices` | sí | Lista JSON con todas las elecciones. |
 | `DELETE` | `/api/choices?name=…` | sí | Borra la elección de un invitado. |
 
-La clave va en `Authorization: Bearer <ADMIN_KEY>`. Cada elección se guarda en KV como
+La clave va en `Authorization: Bearer <ADMIN_KEY>`. Las elecciones se guardan en un Durable Object
+(`Guests`, consistente al instante; no requiere crear nada en el panel) como
 `{ name, starter, dish, drinkStart, drinkEnd, createdAt, updatedAt }`.
 Los registros antiguos con una sola bebida (`drink`) se muestran como bebida para empezar.
 

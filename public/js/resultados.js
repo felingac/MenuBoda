@@ -14,7 +14,11 @@ let key = session.get();
 let rows = [];
 
 async function api(method, query = '') {
-  const res = await fetch(`/api/choices${query}`, { method, headers: { authorization: `Bearer ${key}` } });
+  const res = await fetch(`/api/choices${query}`, {
+    method,
+    cache: 'no-store',
+    headers: { authorization: `Bearer ${key}` },
+  });
   if (res.status === 401) throw Object.assign(new Error('Clave incorrecta.'), { auth: true });
   if (!res.ok) throw new Error('No se pudo conectar con el servidor.');
   return res.json();

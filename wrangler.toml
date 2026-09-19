@@ -8,6 +8,16 @@ binding = "ASSETS"
 # /resultados sirve resultados.html
 html_handling = "auto-trailing-slash"
 
+# Elecciones de los invitados (almacenamiento fuertemente consistente).
+[[durable_objects.bindings]]
+name = "GUESTS"
+class_name = "Guests"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Guests"]
+
+# KV anterior: solo se lee una vez para copiar las elecciones al Durable Object.
 [[kv_namespaces]]
 binding = "CHOICES"
 id = "787e403110104782afe1e3bcf087bd79"

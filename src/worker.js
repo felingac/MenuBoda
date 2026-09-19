@@ -1,9 +1,14 @@
-// Cloudflare Worker: sirve la carta (assets estáticos) y guarda las elecciones en KV.
-// Cada invitado es una clave `choice:<nombre-normalizado>`, así las escrituras simultáneas
-// no se pisan entre sí.
+// Cloudflare Worker: sirve la carta (assets estáticos) y guarda las elecciones.
+//
+// Las elecciones viven en un Durable Object (`Guests`): una sola instancia con almacenamiento
+// fuertemente consistente, así un borrado o un cambio se ve al instante en /resultados.
+// (Antes se usaba KV, que es eventualmente consistente y seguía mostrando registros borrados;
+// los datos que quedaron en KV se copian una sola vez al Durable Object.)
+import { DurableObject } from 'cloudflare:workers';
 import { STARTER, DISH_LABELS, DRINK_LABELS } from '../public/js/menu-data.js';
 
 const PREFIX = 'choice:';
+const IMPORTED_FLAG = 'meta:kv-imported';
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -25,19 +30,46 @@ function isAdmin(request, env) {
   return !!env.ADMIN_KEY && auth === `Bearer ${env.ADMIN_KEY}`;
 }
 
-async function listChoices(env) {
-  const names = [];
-  let cursor;
-  do {
-    const page = await env.CHOICES.list({ prefix: PREFIX, cursor });
-    names.push(...page.keys.map((k) => k.name));
-    cursor = page.list_complete ? undefined : page.cursor;
-  } while (cursor);
-  // `list()` tarda hasta ~60 s en reflejar borrados y cambios; `get()` los ve de inmediato.
-  // Se confirma cada clave para no mostrar invitados ya borrados ni elecciones viejas.
-  const records = await Promise.all(names.map((n) => env.CHOICES.get(n, 'json')));
-  return records.filter(Boolean).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+export class Guests extends DurableObject {
+  // Copia única de las elecciones que había en KV antes del cambio.
+  async #importFromKv() {
+    if (await this.ctx.storage.get(IMPORTED_FLAG)) return;
+    const kv = this.env.CHOICES;
+    if (kv) {
+      let cursor;
+      do {
+        const page = await kv.list({ prefix: PREFIX, cursor });
+        for (const k of page.keys) {
+          const rec = await kv.get(k.name, 'json');
+          if (rec && !(await this.ctx.storage.get(k.name))) await this.ctx.storage.put(k.name, rec);
+        }
+        cursor = page.list_complete ? undefined : page.cursor;
+      } while (cursor);
+    }
+    await this.ctx.storage.put(IMPORTED_FLAG, true);
+  }
+
+  async all() {
+    await this.#importFromKv();
+    const map = await this.ctx.storage.list({ prefix: PREFIX });
+    return [...map.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  }
+
+  async upsert(key, record) {
+    await this.#importFromKv();
+    const prev = await this.ctx.storage.get(key);
+    const saved = { ...record, createdAt: prev?.createdAt ?? record.createdAt };
+    await this.ctx.storage.put(key, saved);
+    return saved;
+  }
+
+  async remove(key) {
+    await this.#importFromKv();
+    return this.ctx.storage.delete(key);
+  }
 }
+
+const guests = (env) => env.GUESTS.get(env.GUESTS.idFromName('boda-gk'));
 
 async function handleApi(request, env, url) {
   if (url.pathname !== '/api/choices') return json({ error: 'No encontrado.' }, 404);
@@ -56,29 +88,26 @@ async function handleApi(request, env, url) {
     if (!DRINK_LABELS.includes(drinkStart)) return json({ error: 'Bebida para empezar no válida.' }, 400);
     if (!DRINK_LABELS.includes(drinkEnd)) return json({ error: 'Bebida para terminar no válida.' }, 400);
 
-    const key = PREFIX + normalize(name);
-    const prev = await env.CHOICES.get(key, 'json');
     const now = new Date().toISOString();
-    const record = {
+    const record = await guests(env).upsert(PREFIX + normalize(name), {
       name,
       starter: STARTER.name,
       dish,
       drinkStart,
       drinkEnd,
-      createdAt: prev?.createdAt ?? now,
+      createdAt: now,
       updatedAt: now,
-    };
-    await env.CHOICES.put(key, JSON.stringify(record));
+    });
     return json({ ok: true, record });
   }
 
   if (!isAdmin(request, env)) return json({ error: 'Clave incorrecta.' }, 401);
 
-  if (request.method === 'GET') return json(await listChoices(env));
+  if (request.method === 'GET') return json(await guests(env).all());
 
   if (request.method === 'DELETE') {
     const name = url.searchParams.get('name') || '';
-    await env.CHOICES.delete(PREFIX + normalize(name));
+    await guests(env).remove(PREFIX + normalize(name));
     return json({ ok: true });
   }
 
