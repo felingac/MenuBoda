@@ -17,6 +17,9 @@ DRINK_SECTIONS.forEach((s) => s.items.forEach((it) => (drinkItems[it.id] = { ...
 const itemsById = { dish: {}, drinkStart: drinkItems, drinkEnd: drinkItems };
 DISH_SECTIONS.forEach((s) => s.items.forEach((it) => (itemsById.dish[it.id] = it)));
 
+// true cuando alguien usa el mismo celular para elegir el menú de otro invitado.
+let forAnother = false;
+
 const store = {
   get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } },
@@ -267,7 +270,9 @@ function openSheet() {
   $('#sumDrinkEnd').textContent = labelFor('drinkEnd');
   $('#formError').textContent = '';
   const saved = store.get('gk-sent');
-  if (saved?.name && !$('#name').value) $('#name').value = saved.name;
+  if (!forAnother && saved?.name && !$('#name').value) $('#name').value = saved.name;
+  $('#sheetTitle').textContent = forAnother ? 'Menú de otro invitado' : 'Casi listo';
+  $('#nameLabel').textContent = forAnother ? 'Nombre del invitado' : 'Tu nombre';
   $('#sheet').hidden = false;
   document.body.classList.add('no-scroll');
   setTimeout(() => $('#name').focus(), 250);
@@ -284,8 +289,14 @@ function showThanks(rec) {
     ? `${rec.drinkStart} para empezar y para terminar`
     : `${rec.drinkStart} para empezar y ${rec.drinkEnd} para terminar`;
   $('#thanksText').textContent = `Te espera ${rec.dish}, con ${drinks}. La entrada llega a la mesa para todos. ¡Buen provecho!`;
+  $('#changeBtn').textContent = forAnother ? 'Cambiar esta elección' : 'Cambiar mi elección';
   $('#thanks').hidden = false;
   document.body.classList.add('no-scroll');
+}
+
+function closeThanks() {
+  $('#thanks').hidden = true;
+  document.body.classList.remove('no-scroll');
 }
 
 function bindForm() {
@@ -296,7 +307,9 @@ function bindForm() {
     e.preventDefault();
     const name = $('#name').value.trim().replace(/\s+/g, ' ');
     if (name.length < 2) {
-      $('#formError').textContent = 'Escribe tu nombre para que sepamos de quién es este plato.';
+      $('#formError').textContent = forAnother
+        ? 'Escribe el nombre del invitado para que sepamos de quién es este plato.'
+        : 'Escribe tu nombre para que sepamos de quién es este plato.';
       $('#name').focus();
       return;
     }
@@ -325,8 +338,17 @@ function bindForm() {
   });
 
   $('#changeBtn').addEventListener('click', () => {
-    $('#thanks').hidden = true;
-    document.body.classList.remove('no-scroll');
+    closeThanks();
+    $('#sec-para-todo-el-dia').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Carta en blanco y nombre vacío para que otra persona elija desde este mismo celular.
+  $('#anotherBtn').addEventListener('click', () => {
+    forAnother = true;
+    KINDS.forEach((k) => (state[k] = null));
+    $('#name').value = '';
+    sync();
+    closeThanks();
     $('#sec-para-todo-el-dia').scrollIntoView({ behavior: 'smooth' });
   });
 }

@@ -82,7 +82,7 @@
     <form class="sheet__panel" id="form" novalidate>
       <button type="button" class="sheet__close" data-close aria-label="Cerrar">×</button>
       <p class="eyebrow eyebrow--green">Tu elección</p>
-      <h2 class="sheet__title">Casi listo</h2>
+      <h2 class="sheet__title" id="sheetTitle">Casi listo</h2>
       <dl class="summary">
         <div><dt>Entrada</dt><dd id="sumStarter"></dd></div>
         <div><dt>Plato fuerte</dt><dd id="sumDish"></dd></div>
@@ -90,7 +90,7 @@
         <div><dt>Bebida · terminar</dt><dd id="sumDrinkEnd"></dd></div>
       </dl>
       <label class="field">
-        <span>Tu nombre</span>
+        <span id="nameLabel">Tu nombre</span>
         <input id="name" name="name" type="text" autocomplete="name" maxlength="60" placeholder="Nombre y apellido" required>
       </label>
       <p class="form__error" id="formError" role="alert"></p>
@@ -106,7 +106,10 @@
       <h2 class="thanks__title">¡Gracias, <span id="thanksName"></span>!</h2>
       <p class="thanks__text" id="thanksText"></p>
       <p class="thanks__sign">G <span class="amp">&amp;</span> K</p>
-      <button class="btn btn--ghost" id="changeBtn" type="button">Cambiar mi elección</button>
+      <div class="thanks__actions">
+        <button class="btn btn--gold" id="anotherBtn" type="button">Elegir para otro invitado</button>
+        <button class="btn btn--ghost" id="changeBtn" type="button">Cambiar mi elección</button>
+      </div>
     </div>
   </div>
 
