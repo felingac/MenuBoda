@@ -27,7 +27,7 @@ npx wrangler login
 npx wrangler kv namespace create CHOICES
 ```
 
-Copia el `id` que imprime el último comando en `wrangler.toml` (`REEMPLAZAR_CON_EL_ID_DE_KV`).
+El `id` del KV ya está en `wrangler.toml`; si creas otro namespace, reemplázalo ahí.
 
 ```bash
 npx wrangler secret put ADMIN_KEY
