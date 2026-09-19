@@ -1,0 +1,14 @@
+name = "menu-gk"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+# /resultados sirve resultados.html
+html_handling = "auto-trailing-slash"
+
+[[kv_namespaces]]
+binding = "CHOICES"
+# Reemplaza por el id que devuelve: npx wrangler kv namespace create CHOICES
+id = "REEMPLAZAR_CON_EL_ID_DE_KV"

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>G &amp; K · Elecciones</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#12453A">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2312453A'/><text x='32' y='43' font-family='Georgia,serif' font-size='26' fill='%23E8B53A' text-anchor='middle'>G&amp;K</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__brand" style="padding-bottom:12px">G <span class="amp">&amp;</span> K</div>
+  </header>
+
+  <main class="admin">
+    <div class="admin__head">
+      <p class="eyebrow eyebrow--green">Almuerzo de bodas</p>
+      <h1>Elecciones</h1>
+      <div class="rule"><span></span></div>
+    </div>
+
+    <form class="login" id="login">
+      <p>Esta página es solo para los novios. Escribe la clave para ver las elecciones de los invitados.</p>
+      <label class="field">
+        <span>Clave</span>
+        <input id="key" type="password" autocomplete="current-password" required>
+      </label>
+      <p class="form__error" id="loginError" role="alert"></p>
+      <button class="btn btn--green btn--block" type="submit">Entrar</button>
+    </form>
+
+    <section id="board" hidden>
+      <div class="stats" id="stats"></div>
+      <div class="tally">
+        <div class="panel"><h2>Platos para la cocina</h2><div id="dishTally"></div></div>
+        <div class="panel"><h2>Bebidas (empezar + terminar)</h2><div id="drinkTally"></div></div>
+      </div>
+
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Buscar invitado…" aria-label="Buscar invitado">
+        <button class="btn btn--line" id="refresh" type="button">Actualizar</button>
+        <button class="btn btn--line" id="csv" type="button">CSV</button>
+        <button class="btn btn--green" id="jsonBtn" type="button">JSON</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Invitado</th><th>Entrada</th><th>Plato fuerte</th><th>Bebida · empezar</th><th>Bebida · terminar</th><th>Subtotal</th><th>Hora</th><th></th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+          <tfoot id="foot"></tfoot>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/js/resultados.js"></script>
+</body>
+</html>

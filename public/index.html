@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>G &amp; K · Almuerzo de bodas</title>
+  <meta name="description" content="Carta del almuerzo de bodas de G & K. Elige tu plato y tu bebida.">
+  <meta name="theme-color" content="#12453A">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2312453A'/><text x='32' y='43' font-family='Georgia,serif' font-size='26' fill='%23E8B53A' text-anchor='middle'>G&amp;K</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Rama de olivo reutilizable -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="leaf" viewBox="0 0 40 14">
+        <path d="M1 7 C 9 -1, 27 -1, 39 7 C 27 15, 9 15, 1 7 Z" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M3 7 L 36 7" fill="none" stroke="currentColor" stroke-width=".6"/>
+      </symbol>
+      <symbol id="branch" viewBox="0 0 220 90">
+        <path d="M6 80 C 60 70, 120 45, 214 12" fill="none" stroke="currentColor" stroke-width="1.1"/>
+        <use href="#leaf" x="30" y="58" width="40" height="14" transform="rotate(-38 30 72)"/>
+        <use href="#leaf" x="34" y="72" width="40" height="14" transform="rotate(14 34 79)"/>
+        <use href="#leaf" x="72" y="44" width="40" height="14" transform="rotate(-44 72 58)"/>
+        <use href="#leaf" x="78" y="60" width="40" height="14" transform="rotate(8 78 67)"/>
+        <use href="#leaf" x="114" y="30" width="40" height="14" transform="rotate(-48 114 44)"/>
+        <use href="#leaf" x="122" y="44" width="40" height="14" transform="rotate(2 122 51)"/>
+        <use href="#leaf" x="158" y="15" width="36" height="13" transform="rotate(-52 158 28)"/>
+        <use href="#leaf" x="166" y="28" width="36" height="13" transform="rotate(-6 166 34)"/>
+        <circle cx="98" cy="62" r="4" fill="none" stroke="currentColor" stroke-width="1"/>
+        <circle cx="146" cy="44" r="3.5" fill="none" stroke="currentColor" stroke-width="1"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- Portada -->
+  <section class="cover" id="cover">
+    <svg class="cover__branch cover__branch--tl" aria-hidden="true"><use href="#branch"/></svg>
+    <svg class="cover__branch cover__branch--br" aria-hidden="true"><use href="#branch"/></svg>
+    <div class="cover__inner">
+      <p class="eyebrow">Almuerzo de bodas</p>
+      <h1 class="monogram">G <span class="amp">&amp;</span> K</h1>
+      <div class="rule"><span></span></div>
+      <p class="cover__lead">Disfruten nuestro almuerzo de bodas</p>
+      <p class="cover__copy">Una mesa larga, pasta hecha con calma y las personas que más queremos. Gracias por acompañarnos: elijan su plato como quien sabe esperar, sin prisa y con buen apetito.</p>
+      <a class="btn btn--gold" href="#carta">Ver la carta</a>
+    </div>
+    <a class="cover__scroll" href="#carta" aria-label="Ir a la carta">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+    </a>
+  </section>
+
+  <!-- Carta -->
+  <header class="topbar" id="carta">
+    <div class="topbar__brand">G <span class="amp">&amp;</span> K</div>
+    <nav class="tabs" id="tabs" aria-label="Categorías"></nav>
+  </header>
+
+  <main class="menu" id="menu"></main>
+
+  <footer class="foot">
+    <svg class="foot__branch" aria-hidden="true"><use href="#branch"/></svg>
+    <p>Con amor, G &amp; K</p>
+  </footer>
+
+  <!-- Barra de selección -->
+  <div class="tray" id="tray" hidden>
+    <div class="tray__summary">
+      <div><span class="tray__label">Plato</span><span class="tray__value" data-tray="dish">Sin elegir</span></div>
+      <div><span class="tray__label">Empezar</span><span class="tray__value" data-tray="drinkStart">Sin elegir</span></div>
+      <div><span class="tray__label">Terminar</span><span class="tray__value" data-tray="drinkEnd">Sin elegir</span></div>
+    </div>
+    <button class="btn btn--green" id="trayBtn" type="button">Continuar</button>
+  </div>
+
+  <!-- Hoja de confirmación -->
+  <div class="sheet" id="sheet" hidden>
+    <div class="sheet__backdrop" data-close></div>
+    <form class="sheet__panel" id="form" novalidate>
+      <button type="button" class="sheet__close" data-close aria-label="Cerrar">×</button>
+      <p class="eyebrow eyebrow--green">Tu elección</p>
+      <h2 class="sheet__title">Casi listo</h2>
+      <dl class="summary">
+        <div><dt>Entrada</dt><dd id="sumStarter"></dd></div>
+        <div><dt>Plato fuerte</dt><dd id="sumDish"></dd></div>
+        <div><dt>Bebida · empezar</dt><dd id="sumDrinkStart"></dd></div>
+        <div><dt>Bebida · terminar</dt><dd id="sumDrinkEnd"></dd></div>
+      </dl>
+      <label class="field">
+        <span>Tu nombre</span>
+        <input id="name" name="name" type="text" autocomplete="name" maxlength="60" placeholder="Nombre y apellido" required>
+      </label>
+      <p class="form__error" id="formError" role="alert"></p>
+      <button class="btn btn--green btn--block" id="sendBtn" type="submit">Enviar</button>
+    </form>
+  </div>
+
+  <!-- Gracias -->
+  <div class="thanks" id="thanks" hidden>
+    <div class="thanks__inner">
+      <svg class="thanks__branch" aria-hidden="true"><use href="#branch"/></svg>
+      <p class="eyebrow">Elección recibida</p>
+      <h2 class="thanks__title">¡Gracias, <span id="thanksName"></span>!</h2>
+      <p class="thanks__text" id="thanksText"></p>
+      <p class="thanks__sign">G <span class="amp">&amp;</span> K</p>
+      <button class="btn btn--ghost" id="changeBtn" type="button">Cambiar mi elección</button>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
