@@ -172,8 +172,16 @@ $('#csv').addEventListener('click', () => {
 $('#rows').addEventListener('click', async (e) => {
   const btn = e.target.closest('.del');
   if (!btn || !confirm(`¿Borrar la elección de ${btn.dataset.name}?`)) return;
-  await api('DELETE', `?name=${encodeURIComponent(btn.dataset.name)}`);
-  load();
+  btn.disabled = true;
+  try {
+    await api('DELETE', `?name=${encodeURIComponent(btn.dataset.name)}`);
+    // Se quita de la tabla en el acto, sin esperar a que el servidor vuelva a listar.
+    rows = rows.filter((r) => r.name !== btn.dataset.name);
+    render();
+  } catch (err) {
+    btn.disabled = false;
+    alert(err.message);
+  }
 });
 
 if (key) load();

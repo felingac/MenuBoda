@@ -1,6 +1,6 @@
 // Cloudflare Worker: sirve la carta (assets estáticos) y guarda las elecciones en KV.
-// Cada invitado es una clave `choice:<nombre-normalizado>`; el registro va también en la
-// metadata para poder leer todo con un solo `list()` (y sin perder escrituras simultáneas).
+// Cada invitado es una clave `choice:<nombre-normalizado>`, así las escrituras simultáneas
+// no se pisan entre sí.
 import { STARTER, DISH_LABELS, DRINK_LABELS } from '../public/js/menu-data.js';
 
 const PREFIX = 'choice:';
@@ -26,16 +26,17 @@ function isAdmin(request, env) {
 }
 
 async function listChoices(env) {
-  const out = [];
+  const names = [];
   let cursor;
   do {
     const page = await env.CHOICES.list({ prefix: PREFIX, cursor });
-    for (const k of page.keys) {
-      out.push(k.metadata ?? JSON.parse(await env.CHOICES.get(k.name)));
-    }
+    names.push(...page.keys.map((k) => k.name));
     cursor = page.list_complete ? undefined : page.cursor;
   } while (cursor);
-  return out.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  // `list()` tarda hasta ~60 s en reflejar borrados y cambios; `get()` los ve de inmediato.
+  // Se confirma cada clave para no mostrar invitados ya borrados ni elecciones viejas.
+  const records = await Promise.all(names.map((n) => env.CHOICES.get(n, 'json')));
+  return records.filter(Boolean).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
 async function handleApi(request, env, url) {
@@ -67,7 +68,7 @@ async function handleApi(request, env, url) {
       createdAt: prev?.createdAt ?? now,
       updatedAt: now,
     };
-    await env.CHOICES.put(key, JSON.stringify(record), { metadata: record });
+    await env.CHOICES.put(key, JSON.stringify(record));
     return json({ ok: true, record });
   }
 
